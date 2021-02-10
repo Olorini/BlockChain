@@ -1,0 +1,11 @@
+/.idea
+/out/*
+
+.gradle
+/gradle
+gradlew.bat
+gradlew
+build/
+user_data/
+log.0.0.txt
+log.0.0.txt.lck
