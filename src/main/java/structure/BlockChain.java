@@ -16,12 +16,15 @@ public class BlockChain {
 
 	private static final Logger LOGGER = Logger.getLogger(BlockChain.class);
 	private static final String FILE_NAME = "src/main/resources/serialize/blockchain.data";
+	private static final long MAX_CREATION_TIME = 1000L;
 
 	private LinkedList<Block> blocks = new LinkedList<>();
+	private int currentZeroCount;
 
 	@SuppressWarnings("unchecked")
-	public BlockChain() {
+	public BlockChain(int startZeroCount) {
 		try {
+			this.currentZeroCount = startZeroCount;
 			if (new File(FILE_NAME).exists()) {
 				this.blocks = (LinkedList<Block>) deserialize(FILE_NAME);
 			}
@@ -30,18 +33,13 @@ public class BlockChain {
 		}
 	}
 
-	public void generateBlock(int zeroCount) {
-		long startTime = System.currentTimeMillis();
-		Block block;
+	public LastBlockData getLastBlockData() {
 		if (blocks.isEmpty()) {
-			block = new Block(1L, "0", zeroCount);
+			return new LastBlockData(1L, "0", currentZeroCount);
 		} else {
 			Block previousBlock = blocks.getLast();
-			block = new Block(previousBlock.getId() + 1, previousBlock.getHash(), zeroCount);
+			return new LastBlockData(previousBlock.getId() + 1, previousBlock.getHash(), currentZeroCount);
 		}
-		long endTime = System.currentTimeMillis();
-		block.setCreationTime((endTime - startTime) / 1000);
-		blocks.add(block);
 	}
 
 	public boolean validate() {
@@ -56,12 +54,28 @@ public class BlockChain {
 		return true;
 	}
 
+	public void addBlock(Block block) {
+		blocks.add(block);
+		if (!validate()) {
+			blocks.removeLast();
+		}
+		if (block.getCreationTime() < MAX_CREATION_TIME) {
+			currentZeroCount++;
+		} else if (currentZeroCount != 0){
+			currentZeroCount--;
+		}
+	}
+
 	public void save() {
 		try {
 			serialize(blocks, FILE_NAME);
 		} catch (IOException e) {
 			LOGGER.error(e.getMessage());
 		}
+	}
+
+	public int getCurrentZeroCount() {
+		return currentZeroCount;
 	}
 
 	@Override

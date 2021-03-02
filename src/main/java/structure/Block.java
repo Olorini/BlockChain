@@ -15,13 +15,16 @@ public class Block implements Serializable {
 	private final long magicNumber;
 	private final String hash;
 	private final String previousBlockHash;
+	private final int zeroCount;
 
 	private long creationTime;
+	private String minerId;
 
-	Block (long id, String previousBlockHash, int zeroCount) {
+	public Block (long id, String previousBlockHash, int zeroCount) {
 		this.id = id;
 		this.previousBlockHash = previousBlockHash;
 		this.time = new Date().getTime();
+		this.zeroCount = zeroCount;
 		String prefixString = new String(new char[zeroCount]).replace('\0', '0');
 		long magicNumber = 0;
 		String hash;
@@ -49,9 +52,18 @@ public class Block implements Serializable {
 		this.creationTime = creationTime;
 	}
 
+	public void setMinerId(String minerId) {
+		this.minerId = minerId;
+	}
+
+	public long getCreationTime() {
+		return creationTime;
+	}
+
 	@Override
 	public String toString() {
 		return "Block:\n" +
+		"Created by miner # " + minerId + "\n" +
 		"Id: " + id + "\n" +
 		"Timestamp: " + time + "\n" +
 		"Magic number: " + magicNumber + "\n" +
