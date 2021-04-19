@@ -12,3 +12,4 @@ log.0.0.txt.lck
 example.log
 src/main/webapp/index.jsp
 example.log.1
+src/main/resources/keys/
