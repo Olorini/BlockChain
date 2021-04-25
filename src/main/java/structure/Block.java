@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class Block implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final long MAX_CREATION_TIME = 1000L;
+	private static final long MAX_CREATION_TIME = 0L;
 
 	private final long id;
 	private final long time;
@@ -21,11 +21,11 @@ public class Block implements Serializable {
 	private final String previousBlockHash;
 	private final List<CryptoMessage> messages;
 	private final int currentZeroCount;
-	private final int nextZeroCount;
 
+	private int nextZeroCount;
 	private String text;
 	private long creationTime;
-	private String minerId;
+	private int minerId;
 
 	public Block (long id, String previousBlockHash, int zeroCount, List<CryptoMessage> blockData) {
 		this.id = id;
@@ -50,13 +50,6 @@ public class Block implements Serializable {
 		} while (!hash.substring(0, zeroCount).equals(prefixString));
 		this.hash = hash;
 		this.magicNumber = magicNumber;
-		if (getCreationTime() < MAX_CREATION_TIME) {
-			this.nextZeroCount = currentZeroCount + 1;
-		} else if (zeroCount != 0){
-			this.nextZeroCount = currentZeroCount - 1;
-		} else {
-			this.nextZeroCount = currentZeroCount;
-		}
 	}
 
 	String getHash() {
@@ -73,9 +66,16 @@ public class Block implements Serializable {
 
 	public void setCreationTime(long creationTime) {
 		this.creationTime = creationTime;
+//		if (creationTime < MAX_CREATION_TIME) {
+//			nextZeroCount = currentZeroCount + 1;
+//		} else if (currentZeroCount > 0){
+//			nextZeroCount = currentZeroCount - 1;
+//		} else {
+			nextZeroCount = 0;
+//		}
 	}
 
-	public void setMinerId(String minerId) {
+	public void setMinerId(int minerId) {
 		this.minerId = minerId;
 	}
 
@@ -91,15 +91,19 @@ public class Block implements Serializable {
 		return nextZeroCount;
 	}
 
+	public int getMinerId() {
+		return minerId;
+	}
+
 	@Override
 	public String toString() {
 		String zeroText;
 		if (currentZeroCount == nextZeroCount) {
 			zeroText = "N stays the same";
 		} else if (currentZeroCount > nextZeroCount) {
-			zeroText = "N was increased to " + nextZeroCount;
+			zeroText = "N was decreased to " + nextZeroCount;
 		} else {
-			zeroText = "N was decreased by " + nextZeroCount;
+			zeroText = "N was increased by " + nextZeroCount;
 		}
 		return "Block:\n" +
 		"Created by miner # " + minerId + "\n" +

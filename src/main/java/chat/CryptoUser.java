@@ -6,36 +6,38 @@ import java.io.File;
 import java.nio.file.Files;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.LinkedList;
 
 public class CryptoUser {
 
 	public static final String KEYS_DIR = "src/main/resources/keys";
 
 	private final String name;
-	private final LinkedList<String> messages = new LinkedList<>();
 	private PrivateKey privateKey;
 	private PublicKey publicKey;
+	private double amount;
 
 	public CryptoUser(String name) throws Exception {
 		this.name = name;
-		this.messages.push("Hello!");
-		this.messages.push("I'm here!");
-		this.messages.push("I'm ready to buy!");
-		this.messages.push("I've borrow your money!");
-		this.messages.push("Thanks!");
-		this.messages.push("Buy!");
+		this.amount = 100.00;
 		initKeyPair();
 	}
 
-	public boolean hasMessage() {
-		return !messages.isEmpty();
-	}
-
-	public CryptoMessage getMessage(long messageId) throws Exception {
-		String message = name + ":" + messages.removeLast();
+	public CryptoMessage getMessage(long messageId, double transAmount, CryptoUser recipient) throws Exception {
+		String message = name + " transfer " + transAmount + " VC to " + recipient.getName() + " REST: " + getAmount();
 		byte[] signature = CryptoUtils.sign(messageId + message, privateKey);
 		return new CryptoMessage(message, signature, publicKey, messageId);
+	}
+
+	public synchronized double getAmount() {
+		return amount;
+	}
+
+	public synchronized void setAmount(double amount) {
+		this.amount = amount;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	private void initKeyPair() throws Exception {

@@ -1,6 +1,7 @@
 package mining;
 
 import chat.CryptoMessage;
+import chat.CryptoUser;
 import structure.Block;
 
 import java.util.List;
@@ -11,15 +12,22 @@ public class Miner implements Callable<Block> {
 	private final long blockId;
 	private final String previousBlockHash;
 	private final int zeroCount;
-	private final String id;
+	private final int id;
 	private final List<CryptoMessage> blockData;
+	private final CryptoUser wallet;
 
-	public Miner(String id, long blockId, String previousBlockHash, int zeroCount, List<CryptoMessage> blockData) {
+	public Miner(int id,
+	             long blockId,
+	             String previousBlockHash,
+	             int zeroCount,
+	             List<CryptoMessage> blockData,
+	             CryptoUser wallet) {
 		this.id = id;
 		this.blockId = blockId;
 		this.previousBlockHash = previousBlockHash;
 		this.zeroCount = zeroCount;
 		this.blockData = blockData;
+		this.wallet = wallet;
 	}
 
 	@Override
@@ -35,5 +43,9 @@ public class Miner implements Callable<Block> {
 		block.setCreationTime((endTime - startTime) / 1000);
 		block.setMinerId(id);
 		return block;
+	}
+
+	public void transferMoneyToWallet() {
+		wallet.setAmount(wallet.getAmount() + 100.00);
 	}
 }
